@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lecture Checklist</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f9f8f6;
+    --surface: #ffffff;
+    --border: #e4e2dc;
+    --border-hover: #c8c5bc;
+    --text: #1a1917;
+    --text-muted: #6b6860;
+    --text-faint: #9e9b94;
+    --accent: #2563eb;
+    --accent-bg: #eff6ff;
+    --accent-border: #bfdbfe;
+    --success: #16a34a;
+    --success-bg: #f0fdf4;
+    --success-border: #bbf7d0;
+    --danger: #dc2626;
+    --danger-bg: #fef2f2;
+    --warning: #d97706;
+    --warning-bg: #fffbeb;
+    --warning-border: #fde68a;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111110;
+      --surface: #1c1c1a;
+      --border: #2e2e2b;
+      --border-hover: #464642;
+      --text: #f0ede8;
+      --text-muted: #8a877f;
+      --text-faint: #5a5852;
+      --accent: #3b82f6;
+      --accent-bg: #1e2d4a;
+      --accent-border: #2d4a7a;
+      --success: #22c55e;
+      --success-bg: #0f2a18;
+      --success-border: #166534;
+      --danger: #f87171;
+      --danger-bg: #2a1010;
+      --warning: #fbbf24;
+      --warning-bg: #2a1f0a;
+      --warning-border: #78450a;
+    }
+  }
+
+  body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .container { max-width: 760px; margin: 0 auto; }
+
+  .header { margin-bottom: 2rem; }
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .title { font-size: 26px; font-weight: normal; letter-spacing: -0.5px; line-height: 1.2; }
+  .subtitle { font-size: 13px; color: var(--text-muted); margin-top: 4px; font-family: 'Helvetica Neue', Arial, sans-serif; }
+  .batch-label {
+    display: inline-block;
+    margin-top: 6px;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--accent);
+    background: var(--accent-bg);
+    border: 1px solid var(--accent-border);
+    padding: 2px 9px;
+    border-radius: 999px;
+  }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; }
+
+  button {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 7px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+  button:hover { border-color: var(--border-hover); color: var(--text); }
+  button:active { transform: scale(0.98); }
+  .btn-reset:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-bg); }
+  .btn-new {
+    border-color: var(--warning);
+    color: var(--warning);
+    background: var(--warning-bg);
+  }
+  .btn-new:hover { border-color: var(--warning); color: var(--warning); background: var(--warning-bg); filter: brightness(0.95); }
+
+  /* Progress */
+  .progress-wrap { margin-bottom: 2rem; }
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+  .progress-labels strong { color: var(--text); font-weight: 600; }
+  .bar-track { height: 4px; background: var(--border); border-radius: 999px; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.4s cubic-bezier(0.4,0,0.2,1); }
+
+  /* Sections */
+  .section { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); margin-bottom: 12px; overflow: hidden; }
+  .section-head { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--bg); }
+  .section-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+  .section-title {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-muted); flex: 1;
+  }
+  .section-count {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 11px; color: var(--text-faint);
+    padding: 2px 8px; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--surface);
+  }
+
+  /* Items */
+  .item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 13px 16px; border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: background 0.1s; user-select: none;
+  }
+  .item:last-child { border-bottom: none; }
+  .item:hover { background: var(--bg); }
+  .checkbox {
+    width: 18px; height: 18px; border-radius: 4px;
+    border: 1.5px solid var(--border-hover); background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px; transition: all 0.15s;
+  }
+  .checkmark {
+    display: none; width: 10px; height: 10px;
+    fill: none; stroke: white; stroke-width: 2.5;
+    stroke-linecap: round; stroke-linejoin: round;
+  }
+  .item.done .checkbox { background: var(--accent); border-color: var(--accent); }
+  .item.done .checkmark { display: block; }
+  .item.done .item-label { color: var(--text-faint); text-decoration: line-through; text-decoration-color: var(--border-hover); }
+  .item.done .item-sub { color: var(--text-faint); }
+  .item-label { font-size: 15px; line-height: 1.4; transition: color 0.15s; }
+  .item-sub { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-top: 3px; transition: color 0.15s; }
+
+  /* Done banner */
+  .done-banner {
+    display: none; text-align: center; padding: 1.25rem 1.5rem; margin-top: 16px;
+    border-radius: var(--radius); background: var(--success-bg);
+    border: 1px solid var(--success-border);
+    font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 14px; color: var(--success);
+  }
+
+  /* ── NEW BATCH MODAL ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45); z-index: 100;
+    align-items: center; justify-content: center; padding: 1rem;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.5rem;
+    width: 100%; max-width: 540px; max-height: 90vh;
+    overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+  .modal h2 { font-size: 18px; font-weight: normal; margin-bottom: 6px; }
+  .modal p { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.5; }
+  .modal label { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); display: block; margin-bottom: 5px; }
+  .modal input[type="text"], .modal textarea {
+    width: 100%; font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 13px; padding: 9px 12px;
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--bg); color: var(--text);
+    outline: none; transition: border-color 0.15s;
+    resize: vertical;
+  }
+  .modal input[type="text"]:focus, .modal textarea:focus { border-color: var(--accent); }
+  .modal textarea { min-height: 160px; margin-bottom: 1rem; }
+  .modal input[type="text"] { margin-bottom: 1rem; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+  .btn-cancel { color: var(--text-muted); }
+  .btn-create {
+    background: var(--accent); color: white;
+    border-color: var(--accent); font-weight: 600;
+  }
+  .btn-create:hover { background: #1d4ed8; border-color: #1d4ed8; color: white; }
+
+  /* Batch history strip */
+  .history-strip {
+    display: none;
+    gap: 6px; flex-wrap: wrap; margin-bottom: 1.25rem;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+  }
+  .history-strip.visible { display: flex; align-items: center; }
+  .history-label { font-size: 11px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.06em; margin-right: 2px; }
+  .history-chip {
+    font-size: 11px; padding: 3px 10px; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--text-muted); cursor: pointer; transition: all 0.12s;
+  }
+  .history-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .history-chip.active { border-color: var(--accent); background: var(--accent-bg); color: var(--accent); font-weight: 600; }
+
+  @media print {
+    body { background: white; padding: 1rem; }
+    button { display: none; }
+    .section { break-inside: avoid; }
+    .modal-overlay { display: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <h1 class="title">Lecture checklist</h1>
+        <p class="subtitle" id="date-line"></p>
+        <span class="batch-label" id="batch-label">Batch 1</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn-new" onclick="openModal()">&#43; New batch</button>
+        <button class="btn-reset" onclick="resetAll()">&#8635; Reset</button>
+        <button onclick="exportTxt()">&#8659; Export .txt</button>
+      </div>
+    </div>
+
+    <!-- Batch history chips -->
+    <div class="history-strip" id="history-strip">
+      <span class="history-label">Batches:</span>
+      <div id="history-chips"></div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-labels">
+        <span>Progress</span>
+        <span><strong id="prog-count">0</strong> of <strong id="prog-total">10</strong> topics covered</span>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" id="bar" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="checklist"></div>
+  <div class="done-banner" id="done-banner">&#10003;&nbsp; All topics covered — great lecture!</div>
+
+</div>
+
+<!-- NEW BATCH MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <h2>New lecture batch</h2>
+    <p>Give this batch a name, then paste your topics — one per line. They'll be turned into checkboxes instantly.</p>
+
+    <label for="batch-name-input">Batch name (e.g. "Week 5 — Cloud Computing")</label>
+    <input type="text" id="batch-name-input" placeholder="e.g. Week 5 — Cloud Computing" />
+
+    <label for="topics-input">Topics (one per line)</label>
+    <textarea id="topics-input" placeholder="e.g.&#10;Docker overview&#10;Kubernetes basics&#10;CI/CD pipeline&#10;AWS Lambda"></textarea>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-create" onclick="createBatch()">&#10003; Create batch</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DEFAULT DATA ─────────────────────────────────────────────────────────────
+const DEFAULT_DATA = [
+  {
+    section: "Big data — interactive session", icon: "📚",
+    items: [{ label: "Big data case from book", sub: "Interactive session — walk through a textbook big data case study: volume, velocity, variety; real-world industry application and class discussion" }]
+  },
+  {
+    section: "XML & web standards", icon: "📄",
+    items: [{ label: "XML with VergeWiki.com", sub: "XML syntax and structure demonstrated via VergeWiki — real-world markup, parsing, and data exchange use cases" }]
+  },
+  {
+    section: "Performance & speed tools", icon: "⚡",
+    items: [{ label: "GTmetrix & PageSpeed Insights", sub: "Reading performance scores, LCP/CLS/FID metrics, waterfall charts, actionable optimisation recommendations" }]
+  },
+  {
+    section: "Data & databases", icon: "🗄️",
+    items: [
+      { label: "Database datasets overview", sub: "Types of datasets — structured vs unstructured, open data sources, importing and exploring sample data" },
+      { label: "Practical: SQL, NoSQL & BI journey", sub: "Hands-on walkthrough — alcohol shop prompt: SQL queries, NoSQL document model, business intelligence reporting pipeline" }
+    ]
+  },
+  {
+    section: "AI & legal tools", icon: "⚖️",
+    items: [{ label: "Tool for judges", sub: "AI-assisted legal decision support tools — use cases in the judiciary, bias concerns, transparency and accountability" }]
+  },
+  {
+    section: "Governance & policy", icon: "🏛️",
+    items: [{ label: "Data governance & policy making", sub: "Data governance frameworks, compliance (GDPR, DPDP), policy lifecycle, roles — stewards, owners, custodians" }]
+  },
+  {
+    section: "Advanced analytics & tools", icon: "🔮",
+    items: [
+      { label: "Business intelligence & predictive future analysis", sub: "BI dashboards, KPIs, forecasting models, predictive analytics pipeline — turning historical data into forward-looking decisions" },
+      { label: "Sameer tool", sub: "Demo and walkthrough of Sameer's tool — features, use case, live session" }
+    ]
+  }
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let batches = JSON.parse(localStorage.getItem('lc_batches') || 'null') || [
+  { name: 'Batch 1', data: DEFAULT_DATA }
+];
+let currentBatch = parseInt(localStorage.getItem('lc_current') || '0');
+let states = JSON.parse(localStorage.getItem('lc_states') || '{}');
+
+function save() {
+  localStorage.setItem('lc_batches', JSON.stringify(batches));
+  localStorage.setItem('lc_current', currentBatch);
+  localStorage.setItem('lc_states', JSON.stringify(states));
+}
+
+function stateKey() { return 'b' + currentBatch; }
+function getState() { return states[stateKey()] || {}; }
+function setState(s) { states[stateKey()] = s; save(); }
+
+function key(si, ii) { return si + '-' + ii; }
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render() {
+  const batch = batches[currentBatch];
+  const DATA = batch.data;
+  const state = getState();
+  const total = DATA.reduce((a, s) => a + s.items.length, 0);
+
+  document.getElementById('batch-label').textContent = batch.name;
+  document.getElementById('prog-total').textContent = total;
+
+  const cl = document.getElementById('checklist');
+  cl.innerHTML = '';
+
+  DATA.forEach((sec, si) => {
+    const doneSec = sec.items.filter((_, ii) => state[key(si, ii)]).length;
+    const wrap = document.createElement('div');
+    wrap.className = 'section';
+    const head = document.createElement('div');
+    head.className = 'section-head';
+    head.innerHTML = `<span class="section-icon">${sec.icon}</span><span class="section-title">${sec.section}</span><span class="section-count">${doneSec}/${sec.items.length}</span>`;
+    wrap.appendChild(head);
+    sec.items.forEach((item, ii) => {
+      const k = key(si, ii);
+      const row = document.createElement('div');
+      row.className = 'item' + (state[k] ? ' done' : '');
+      row.setAttribute('role', 'checkbox');
+      row.setAttribute('aria-checked', !!state[k]);
+      row.setAttribute('tabindex', '0');
+      row.innerHTML = `
+        <div class="checkbox">
+          <svg class="checkmark" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>
+        </div>
+        <div>
+          <div class="item-label">${item.label}</div>
+          ${item.sub ? '<div class="item-sub">' + item.sub + '</div>' : ''}
+        </div>`;
+      row.onclick = () => toggle(si, ii);
+      row.onkeydown = e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(si, ii); } };
+      wrap.appendChild(row);
+    });
+    cl.appendChild(wrap);
+  });
+
+  updateProgress(state, total);
+  renderHistory();
+}
+
+function updateProgress(state, total) {
+  const done = Object.values(state).filter(Boolean).length;
+  const pct = total > 0 ? Math.round(done / total * 100) : 0;
+  document.getElementById('bar').style.width = pct + '%';
+  document.getElementById('prog-count').textContent = done;
+  document.getElementById('done-banner').style.display = (done === total && total > 0) ? 'block' : 'none';
+}
+
+function renderHistory() {
+  const strip = document.getElementById('history-strip');
+  const chips = document.getElementById('history-chips');
+  if (batches.length <= 1) { strip.classList.remove('visible'); return; }
+  strip.classList.add('visible');
+  chips.innerHTML = '';
+  batches.forEach((b, i) => {
+    const chip = document.createElement('span');
+    chip.className = 'history-chip' + (i === currentBatch ? ' active' : '');
+    chip.textContent = b.name;
+    chip.onclick = () => { currentBatch = i; save(); render(); };
+    chips.appendChild(chip);
+  });
+}
+
+function toggle(si, ii) {
+  const state = getState();
+  const k = key(si, ii);
+  state[k] = !state[k];
+  setState(state);
+  render();
+}
+
+function resetAll() {
+  const state = getState();
+  if (Object.values(state).some(Boolean) && !confirm('Reset all checkboxes for "' + batches[currentBatch].name + '"?')) return;
+  setState({});
+  render();
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function openModal() {
+  document.getElementById('modal-overlay').classList.add('open');
+  document.getElementById('batch-name-input').value = 'Batch ' + (batches.length + 1);
+  document.getElementById('topics-input').value = '';
+  setTimeout(() => document.getElementById('batch-name-input').focus(), 80);
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+function createBatch() {
+  const name = document.getElementById('batch-name-input').value.trim() || ('Batch ' + (batches.length + 1));
+  const raw = document.getElementById('topics-input').value.trim();
+  if (!raw) { alert('Please enter at least one topic.'); return; }
+
+  const lines = raw.split('\n').map(l => l.replace(/^[\s\-\*\d\.]+/, '').trim()).filter(Boolean);
+  if (!lines.length) { alert('No valid topics found. Enter one topic per line.'); return; }
+
+  // Build a single section from the pasted lines
+  const newData = [{
+    section: name,
+    icon: '📋',
+    items: lines.map(l => ({ label: l, sub: '' }))
+  }];
+
+  batches.push({ name, data: newData });
+  currentBatch = batches.length - 1;
+  save();
+  closeModal();
+  render();
+}
+
+// ── EXPORT ────────────────────────────────────────────────────────────────────
+function exportTxt() {
+  const batch = batches[currentBatch];
+  const DATA = batch.data;
+  const state = getState();
+  const total = DATA.reduce((a, s) => a + s.items.length, 0);
+  const now = new Date();
+  let out = 'LECTURE CHECKLIST — ' + batch.name.toUpperCase() + '\n';
+  out += '='.repeat(40) + '\n';
+  out += 'Date: ' + now.toDateString() + '\n';
+  out += 'Time: ' + now.toLocaleTimeString() + '\n\n';
+  const done = Object.values(state).filter(Boolean).length;
+  out += 'Progress: ' + done + ' of ' + total + ' topics covered\n\n';
+  DATA.forEach((sec, si) => {
+    out += sec.section.toUpperCase() + '\n' + '-'.repeat(sec.section.length) + '\n';
+    sec.items.forEach((item, ii) => {
+      out += (state[key(si, ii)] ? '[x] ' : '[ ] ') + item.label + '\n';
+      if (item.sub) out += '     ' + item.sub + '\n';
+    });
+    out += '\n';
+  });
+  const blob = new Blob([out], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'lecture-checklist-' + batch.name.replace(/\s+/g, '-').toLowerCase() + '-' + now.toISOString().slice(0, 10) + '.txt';
+  a.click();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+const d = new Date();
+document.getElementById('date-line').textContent = d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+if (currentBatch >= batches.length) currentBatch = 0;
+render();
+</script>
+</body>
+</html>
